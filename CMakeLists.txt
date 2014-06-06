@@ -1,13 +1,12 @@
-cmake_minimum_required(VERSION 2.6)
-project(paper soccer)
-find_package(Qt4 REQUIRED)
+cmake_minimum_required(VERSION 2.8.11)
 
-include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
+project(PaperSoccer)
 
-set(Paper Soccer_SRCS Paper Soccer.cpp main.cpp)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
 
-qt4_automoc(${Paper Soccer_SRCS})
-add_executable(paper soccer ${Paper Soccer_SRCS})
-target_link_libraries(paper soccer ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
 
-install(TARGETS paper soccer RUNTIME DESTINATION bin)
+add_subdirectory(src)

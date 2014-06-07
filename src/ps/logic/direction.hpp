@@ -20,6 +20,7 @@ enum Direction : quint8 {
 
 // It would be nice if enums could have methods.
 
+std::array<Direction, 8> directions();
 Direction opposite(Direction dir);
 Point dirToPoint(Direction dir);
 

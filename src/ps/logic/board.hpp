@@ -1,6 +1,8 @@
 #ifndef PS_LOGIC_BOARD_HPP
 #define PS_LOGIC_BOARD_HPP
 
+#include "../maybe.hpp"
+#include "../shape.hpp"
 #include "point.hpp"
 #include "direction.hpp"
 #include "edge.hpp"
@@ -10,6 +12,8 @@
 
 namespace ps {
 namespace logic {
+
+class Move;
 
 class Move;
 
@@ -41,32 +45,44 @@ public:
 	 * @param width Width of the board. Must be even.
 	 * @param height Height of the board, excluding the gates. Must be even.
 	 */
-	Board(quint8 width, quint8 height);
+	Board(uint width, uint height);
 
-	quint8 width() const;
-	quint8 height() const;
-	quint8 halfWidth() const;
-	quint8 halfHeight() const;
+	//------------------
+	// Board properties.
 
 	/**
-	 * Has the game finished?
+	 * The width of the board.
+	 */
+	uint width() const;
+
+	/**
+	 * The height of the board, excluding the gates.
+	 */
+	uint height() const;
+
+	/**
+	 * Half of the width of the board.
+	 */
+	uint halfWidth() const;
+
+	/**
+	 * half of the height of the board, excluding the gates.
+	 */
+	uint halfHeight() const;
+
+	/**
+	 * The player who is currently making a move, or None if the game ended.
+	 */
+	Maybe<Player> currentPlayer() const;
+
+	/**
+	 * The winner if the game has finished.
 	 * 
 	 * There are two possible win conditions:
 	 *     - the ball entered a gate,
 	 *     - a player cannot make a move and so he loses the game.
 	 */
-	bool isFinished() const;
-
-	/**
-	 * The player who has to make the next move.
-	 */
-	Player currentPlayer() const;
-
-	/**
-	 * The winner.
-	 * @warning Call only when isFinished().
-	 */
-	Player winner() const;
+	Maybe<Player> winner() const;
 
 	/**
 	 * @returns the position of the ball.
@@ -74,11 +90,12 @@ public:
 	Point ball() const;
 
 	/**
-	 * Sets the position of the ball. 
-	 * 
-	 * The new position must be inside the board.
+	 * Was the edge visited?
 	 */
-	void setBall(Point p);
+	bool isEdgeVisited(Edge edge) const;
+
+	//----------------------------
+	// Read-only helper functions.
 
 	/**
 	 * Is the point inside the board (board includes the edge and gates).
@@ -107,51 +124,63 @@ public:
 	bool isEdgeOutside(Edge e) const;
 
 	/**
-	 * Was the edge visited?
+	 * Is a move valid?
 	 */
-	bool edge(Edge edge) const;
+	bool isMoveValid(Direction dir) const;
+
+	//------------------------------
+	// Low level board manipulation.
+
+	/**
+	 * Sets the position of the ball. 
+	 * 
+	 * The new position must be inside the board.
+	 */
+	void setBall(Point p);
+
+	/**
+	 * Sets the current player.
+	 */
+	void setCurrentPlayer(Player player);
 
 	/**
 	 * Sets whether the edge was visited.
 	 */
-	void setEdge(Edge edge, bool value) const;
+	void setEdgeVisited(ps::logic::Edge edge, bool value);
 
-	/**
-	 * Checks if the move does not violate any rules.
-	 */
-	bool isMoveValid(const Move& move) const;
+	//-------------------------------
+	// High level board manipulation.
 
-	/**
-	 * Checks if the move is valid and the current player cannot extend it.
-	 */
-	bool isMoveComplete(const Move& move) const;
-
-	/**
-	 * Makes a move.
-	 * 
-	 * The move has to be valid, but does not have to be complete. The current player does not change after an 
-	 * incomplete move.
-	 */
 	void makeMove(const Move& move);
+
+	void revertMove(const Move& move);
+
+	/**
+	 * Makes a move in some direction.
+	 */
+	void makeMove(Direction dir);
 
 	/**
 	 * Reverts a move.
-	 * 
-	 * For any valid move:
-	 * @code
-	 * board.makeMove(move);
-	 * board.revertMove(move);
-	 * @endcode
-	 * should have no effect on the board.
-	 * 
-	 * @see makeMove
 	 */
-	void revertMove(const Move& move);
+	void revertMove(Direction dir);
+
+	/**
+	 * Ends the current player's turn.
+	 */
+	void endTurn();
 
 private:
+	size_t edgeIndex(Edge edge) const;
+	void checkGates();
+	void checkWinConditions();
+	bool isAnyMoveAvailable() const;
+
 	Point ball_;
 	Player currentPlayer_;
-	quint8 width_, height_;
+	Maybe<Player> winner_;
+	uint width_, height_;
+	Shape<int, int, quint8> shape;
 	std::vector<bool> edges;
 };
 

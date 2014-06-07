@@ -50,7 +50,7 @@ void Edge::normalize()
 	quint8 dirAsInt = static_cast<quint8>(direction());
 	if (dirAsInt >= 4) {
 		setStart(end());
-		setDirection(opposite(direction));
+		setDirection(opposite(direction()));
 	}
 }
 

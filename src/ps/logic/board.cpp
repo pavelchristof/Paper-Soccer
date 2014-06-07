@@ -3,46 +3,92 @@
 namespace ps {
 namespace logic {
 
-
-
-Board::Board(quint8 width, quint8 height)
+Board::Board(uint width, uint height)
 	: ball_(0, 0)
 	, currentPlayer_(Player::One)
+	, winner_(None{})
 	, width_(width)
 	, height_(height)
+	, shape(std::make_tuple(
+		std::make_pair(-(halfWidth() + 1), halfWidth() + 1), 
+		std::make_pair(-(halfHeight() + 2), halfHeight() + 2), 
+		std::make_pair(0, 3)
+	  ))
+	, edges(shape.size(), false)
 {
 	Q_ASSERT(width_ % 2 == 0);
 	Q_ASSERT(height_ % 2 == 0);
+
+	// 012.....halfWidth()
+	// -
+	//  |______  <- halfHeight()
+	//         |
+	//         |
+	//         |
+	//         |
+
+	int hw = halfWidth();
+	int hh = halfHeight();
+
+	// Draw a rectangle.
+	for (int row = -hh; row < hh; ++row) {
+		setEdgeVisited({{hw, row}, North}, true);
+		setEdgeVisited({{-hw, row}, North}, true);
+	}
+	for (int col = -hw; col < hw; ++col) {
+		setEdgeVisited({{col, hh}, East}, true);
+		setEdgeVisited({{col, -hh}, East}, true);
+	}
+
+	// Make a hole for the gates.
+	setEdgeVisited({{0, hh}, East}, false);
+	setEdgeVisited({{0, hh}, West}, false);
+	setEdgeVisited({{0, -hh}, East}, false);
+	setEdgeVisited({{0, -hh}, West}, false);
+
+	// Draw the gates.
+	setEdgeVisited({{0, hh + 1}, East}, true);
+	setEdgeVisited({{0, hh + 1}, West}, true);
+	setEdgeVisited({{0, -(hh + 1)}, East}, true);
+	setEdgeVisited({{0, -(hh + 1)}, West}, true);
+	setEdgeVisited({{1, hh}, North}, true);
+	setEdgeVisited({{-1, hh}, North}, true);
+	setEdgeVisited({{1, -hh}, South}, true);
+	setEdgeVisited({{-1, -hh}, South}, true);
 }
 
-bool Board::isFinished() const
-{
-
-}
-
-Player Board::winner() const
-{
-
-}
-
-quint8 Board::width() const
+uint Board::width() const
 {
 	return width_;
 }
 
-quint8 Board::height() const
+uint Board::height() const
 {
 	return height_;
 }
 
-quint8 Board::halfWidth() const
+uint Board::halfWidth() const
 {
 	return width_ >> 1;
 }
 
-quint8 Board::halfHeight() const
+uint Board::halfHeight() const
 {
 	return height_ >> 1;
+}
+
+Maybe<Player> Board::currentPlayer() const
+{
+	if (winner_.isSome()) {
+		return None{};
+	} else {
+		return currentPlayer_;
+	}
+}
+
+Maybe<Player> Board::winner() const
+{
+	return winner_;
 }
 
 Point Board::ball() const
@@ -50,10 +96,9 @@ Point Board::ball() const
 	return ball_;
 }
 
-void Board::setBall(Point p)
+bool Board::isEdgeVisited(Edge edge) const
 {
-	Q_ASSERT(isPointInside(p));
-	ball_ = p;
+	return edges[edgeIndex(edge)];
 }
 
 bool Board::isPointInside(Point p) const
@@ -82,9 +127,86 @@ bool Board::isEdgeOutside(Edge e) const
 	return !isEdgeInside(e);
 }
 
-bool Board::isMoveValid(const Move& move) const
+bool Board::isMoveValid(Direction dir) const
 {
+	Edge edge{ball(), dir};
+	return isEdgeInside(edge) && !isEdgeVisited(edge);
+}
+
+void Board::setBall(Point p)
+{
+	Q_ASSERT(isPointInside(p));
+	ball_ = p;
+}
+
+void Board::setCurrentPlayer(Player player)
+{
+	currentPlayer_ = player;
+}
+
+void Board::setEdgeVisited(Edge edge, bool value)
+{
+	edges[edgeIndex(edge)] = value;
+}
+
+void Board::makeMove(Direction dir)
+{
+	Edge edge = {ball(), dir};
+
+	Q_ASSERT(isMoveValid(dir));
+	Q_ASSERT(isEdgeInside(edge));
+	Q_ASSERT(!isEdgeVisited(edge));
 	
+	setEdgeVisited(edge, true);
+	setBall(edge.end());
+	checkGates();
+}
+
+void Board::revertMove(Direction dir)
+{
+
+}
+
+void Board::endTurn()
+{
+
+}
+
+size_t Board::edgeIndex(Edge edge) const
+{
+	edge.normalize();
+	return shape.map(std::make_tuple(
+		edge.start().x, 
+		edge.start().y, 
+		static_cast<quint8>(edge.direction())
+	));
+}
+
+void Board::checkGates()
+{
+	if (ball().y == halfHeight() + 1) {
+		winner_ = Player::Two;
+	} else if (ball().y == -(halfHeight() + 1)) {
+		winner_ = Player::One;
+	}
+}
+
+void Board::checkWinConditions()
+{
+	if (!isAnyMoveAvailable()) {
+		// checkWinConditions happens after a move, so we have 
+		winner_ = !currentPlayer();
+	}
+}
+
+bool Board::isAnyMoveAvailable() const
+{
+	for (Direction dir : directions()) {
+		if (isMoveValid(dir)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 } // namespace logic

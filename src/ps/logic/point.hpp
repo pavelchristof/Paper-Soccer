@@ -11,20 +11,13 @@ namespace logic {
  */
 struct Point
 {
-	// So much optimizations.
-	union {
-		struct {
-			qint8 x, y;
-		};
-		quint16 packed;
-	};
+	int x, y;
 
 	Point() = default;
 	Point(const Point&) = default;
 	Point(Point&&) = default;
 
-	Point(qint8 x, qint8 y);
-	Point(quint16 packed);
+	Point(int x, int y);
 
 	Point& operator = (const Point&) = default;
 	Point& operator = (Point&&) = default;

@@ -2,6 +2,7 @@
 #define PS_EITHER_HPP
 
 #include <utility>
+#include <cassert>
 
 namespace ps {
 
@@ -113,22 +114,22 @@ public:
 	 */
 	// @{
 	Left& left() {
-		Q_ASSERT(isLeft());
+		assert(isLeft());
 		return left_;
 	}
 
 	const Left& left() const {
-		Q_ASSERT(isLeft());
+		assert(isLeft());
 		return left_;
 	}
 
 	Right& right() {
-		Q_ASSERT(isRight());
+		assert(isRight());
 		return right_;
 	}
 
 	const Right& right() const {
-		Q_ASSERT(isRight());
+		assert(isRight());
 		return right_;
 	}
 	// @}

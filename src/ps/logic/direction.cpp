@@ -3,6 +3,15 @@
 namespace ps {
 namespace logic {
 
+std::array<Direction, 8> directions()
+{
+	std::array<Direction, 8> array;
+	for (quint8 dir = 0; dir < 8; ++dir) {
+		array[dir] = static_cast<Direction>(dir);
+	}
+	return array;
+}
+
 Direction opposite(Direction dir)
 {
 	quint8 asInt = (static_cast<quint8>(dir) + 4) % 8;
@@ -11,7 +20,7 @@ Direction opposite(Direction dir)
 
 Point dirToPoint(Direction dir)
 {
-	quint8 x;
+	qint8 x;
 
 	switch (dir) {
 		case NorthWest:
@@ -33,7 +42,7 @@ Point dirToPoint(Direction dir)
 
 	}
 
-	quint8 y;
+	qint8 y;
 
 	switch (dir) {
 		case SouthEast:

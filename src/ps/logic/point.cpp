@@ -3,45 +3,48 @@
 namespace ps {
 namespace logic {
 
-Point::Point(qint8 x, qint8 y)
+Point::Point(int x, int y)
 	: x(x)
 	, y(y)
 {
 }
 
-Point::Point(quint16 packed)
-	: packed(packed)
-{
-}
-
 bool Point::operator <(const Point& p) const
 {
-	return packed < p.packed;
+	if (x != p.x)
+		return x < p.x;
+	return y < p.y;
 }
 
 bool Point::operator <=(const Point& p) const
 {
-	return packed <= p.packed;
+	if (x != p.x)
+		return x <= p.x;
+	return y <= p.y;
 }
 
 bool Point::operator >(const Point& p) const
 {
-	return packed > p.packed;
+	if (x != p.x)
+		return x > p.x;
+	return y > p.y;
 }
 
 bool Point::operator >=(const Point& p) const
 {
-	return packed >= p.packed;
+	if (x != p.x)
+		return x >= p.x;
+	return y >= p.y;
 }
 
 bool Point::operator ==(const Point& p) const
 {
-	return packed == p.packed;
+	return x == p.x && y == p.y;
 }
 
 bool Point::operator !=(const Point& p) const
 {
-	return packed != p.packed;
+	return x != p.x || y != p.y;
 }
 
 } // namespace logic

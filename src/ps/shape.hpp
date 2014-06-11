@@ -67,6 +67,11 @@ public:
 	{
 	}
 
+	Shape(const Shape&) = default;
+	Shape(Shape&&) = default;
+	Shape& operator =(const Shape&) = default;
+	Shape& operator =(Shape&&) = default;
+
 	/**
 	 * @returns the key intervals.
 	 */
@@ -94,20 +99,20 @@ public:
 private:
 	IntervalsTuple intervals_;
 
-	template <size_t keyIndex, typename Dummy = void>
+	template <size_t dim, typename Dummy = void>
 	struct MapImpl {
 		static size_t exec(const IntervalsTuple& intervals, const KeysTuple& keys, 
 						   size_t prefixCount, size_t prefixIndex)
 		{
-			const auto& range = std::get<keyIndex - 1>(intervals);
-			const auto& key = std::get<keyIndex - 1>(keys);
+			const auto& range = std::get<dim - 1>(intervals);
+			const auto& key = std::get<dim - 1>(keys);
 
-			size_t layerCount = range.second - range.first + 1;
-			size_t layerIndex = key - range.first;
+			size_t layerCount = size_t(range.second - range.first) + 1;
+			size_t layerIndex = size_t(key - range.first);
 
 			assert(layerIndex < layerCount);
 
-			return MapImpl<keyIndex - 1>::exec(
+			return MapImpl<dim - 1>::exec(
 				intervals,
 				keys,
 				prefixCount * layerCount,
@@ -125,14 +130,13 @@ private:
 		}
 	};
 
-	template <size_t keyIndex, typename Dummy = void>
+	template <size_t dim, typename Dummy = void>
 	struct SizeImpl {
 		static size_t exec(const IntervalsTuple& intervals, size_t sizeSoFar)
 		{
-			const auto& range = std::get<keyIndex - 1>(intervals);
-
-			size_t rangeSize = range.second - range.first + 1;
-			return SizeImpl<keyIndex - 1>::exec(intervals, rangeSize * sizeSoFar);
+			const auto& range = std::get<dim - 1>(intervals);
+			size_t rangeSize = size_t(range.second - range.first) + 1;
+			return SizeImpl<dim - 1>::exec(intervals, rangeSize * sizeSoFar);
 		}
 	};
 

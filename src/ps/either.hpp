@@ -17,14 +17,6 @@ class Either
 {
 public:
 	/**
-	 * Initialize with a default left value.
-	 * The default constructor is required by QVector.
-	 */
-	Either() {
-		construct(Left{}, TagLeft{});
-	}
-
-	/**
 	 * Constructs either a left or a right value.
 	 * The tag can be used to resolve ambiguousness.
 	 */

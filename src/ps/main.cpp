@@ -1,21 +1,81 @@
 #include <QtWidgets/QApplication>
-#include "shape.hpp"
+#include <QtWidgets/QHBoxLayout>
+#include <QtCore/QDebug>
+#include <QMainWindow>
 #include <iostream>
+
+#include "shape.hpp"
+#include "model/board.hpp"
+#include "model/history.hpp"
+#include "views/boardview.hpp"
+#include "views/historyview.hpp"
+#include "views/gameview.hpp"
 
 using namespace ps;
 using namespace std;
 
+void initHistory(History& history) 
+{
+	Board board({8, 12});
+
+	board.pushStep(North);
+	board.finishMove();
+	history.push(board);
+
+	board.pushStep(East);
+	board.finishMove();
+	history.push(board);
+
+	board.pushStep(North);
+	board.finishMove();
+	history.push(board);
+	
+	board.pushStep(East);
+	board.finishMove();
+	history.push(board);
+
+	board.pushStep(North);
+	board.finishMove();
+	history.push(board);
+	
+	board.pushStep(East);
+	board.finishMove();
+	history.push(board);
+
+	board.pushStep(North);
+	board.finishMove();
+	history.push(board);
+	
+	board.pushStep(East);
+	board.finishMove();
+	history.push(board);
+
+	board.pushStep(SouthWest);
+	board.pushStep(South);
+	history.push(board);
+
+	history.setFocusedIndex(2);
+}
+
 int main(int argc, char** argv)
 {
-	Shape<int, int> shape(make_tuple(make_pair(-5, 3), make_pair(8, 16)));
-	cout << shape.size() << endl;
-	
-	for (int x = -5; x <= 3; ++x) {
-		for (int y = 8; y <= 16; ++y) {
-			cout << shape.map(make_tuple(x, y)) << endl;
-		}
-	}
+	QApplication app(argc, argv);
+	QMainWindow window;
 
-    QApplication app(argc, argv);
-    return app.exec();
+	History history;
+	initHistory(history);
+
+	GameView gameView;
+	gameView.boardView()->setBoard(history.focusedBoard());
+	gameView.historyView()->setHistory(&history);
+
+	QObject::connect(gameView.historyView(), &HistoryView::itemClicked, [&history, &gameView] (size_t i) {
+		history.setFocusedIndex(i);
+		gameView.boardView()->setBoard(history.focusedBoard());
+	});
+
+	window.setCentralWidget(&gameView);
+	window.show();
+
+	return app.exec();
 }

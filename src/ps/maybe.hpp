@@ -9,11 +9,12 @@
 namespace ps {
 
 class None {};
+const None none;
 
 /**
  * An utility class that can either contain a value or be empty.
  */
-template <typename T, bool IsReference = std::is_reference<T>::value>
+template <typename T>
 class Maybe
 {
 public:
@@ -25,7 +26,7 @@ public:
 	 */
 	Maybe(None)
 	{
-		construct(None{});
+		construct(none);
 	}
 
 	/**
@@ -73,7 +74,7 @@ public:
 	Maybe& operator =(None)
 	{
 		destruct();
-		construct(None{});
+		construct(none);
 		return *this;
 	}
 
@@ -128,11 +129,19 @@ public:
 	// @}
 
 	/**
-	 * Conversion to Maybe<const T>.
+	 * Conversion to a const value.
 	 */
 	operator Maybe<const T>() const 
 	{
-		return map<const T>([] (const T& value) { return value; });
+		return map<const T>([] (const T& value) -> const T { return value; });
+	}
+
+	/**
+	 * Conversion to a const reference.
+	 */
+	operator Maybe<const T&>() const
+	{
+		return map<const T&>([] (const T& value) -> const T& { return value; });
 	}
 
 	/**
@@ -178,7 +187,7 @@ public:
 		if (isSome()) {
 			return f(get());
 		} else {
-			return None{};
+			return none;
 		}
 	}
 
@@ -204,7 +213,7 @@ public:
 		if (isSome()) {
 			return f(get());
 		} else {
-			return None{};
+			return none;
 		}
 	}
 
@@ -261,7 +270,7 @@ private:
  * Maybe<T> specialized for reference types.
  */
 template <typename T>
-class Maybe<T, true>
+class Maybe<T&>
 {
 public:
 	/**
@@ -269,28 +278,24 @@ public:
 	 */
 	Maybe(None)
 	{
-		set(None{});
+		set(none);
 	}
 
 	/**
 	 * Creates an object containing some value.
 	 */
-	// @{
-	Maybe(T some)
+	Maybe(T& some)
 	{
 		set(some);
 	}
-	// @}
 
 	/**
 	 * Copies an existing object.
 	 */
-	// @{
 	Maybe(const Maybe& maybe)
 	{
 		set(maybe);
 	}
-	// @}
 
 	/**
 	 * Assignment.
@@ -298,11 +303,11 @@ public:
 	// @{
 	Maybe& operator =(None)
 	{
-		set(None{});
+		set(none);
 		return *this;
 	}
 
-	Maybe& operator =(T some)
+	Maybe& operator =(T& some)
 	{
 		set(some);
 		return *this;
@@ -326,7 +331,7 @@ public:
 			return maybe.isNone();
 		}
 	}
-	
+
 	bool operator !=(const Maybe& maybe) const {
 		if (isSome()) {
 			return maybe.isNone() || get() != maybe.get();
@@ -336,14 +341,20 @@ public:
 	}
 	// @}
 
-	
+	/**
+	 * Conversion to Maybe<const T&>.
+	 */
+	operator Maybe<const T&>() const 
+	{
+		return map<const T&>([] (const T& value) -> const T& { return value; });
+	}
 
 	/**
-	 * Conversion to Maybe<const T>.
+	 * Conversion to a value using copy constructor.
 	 */
-	operator Maybe<const T>() const 
+	operator Maybe<typename std::remove_const<T>::type>() const
 	{
-		return map<const T>([] (const T& value) { return value; });
+		return map<typename std::remove_const<T>::type>([] (const T& value) -> T { return T{value}; });
 	}
 
 	/**
@@ -367,13 +378,7 @@ public:
 	 * @warning Call only if isSome().
 	 */
 	// @{
-	T get()
-	{
-		assert(isSome());
-		return *pointer;
-	}
-
-	const T get() const
+	T& get() const
 	{
 		assert(isSome());
 		return *pointer;
@@ -384,12 +389,12 @@ public:
 	 * Maps an Maybe<T> to Maybe<R> by applying a function to the contained value.
 	 */
 	template <typename R>
-	Maybe<R> map(std::function<R (T)> f) const
+	Maybe<R> map(std::function<R (T&)> f) const
 	{
 		if (isSome()) {
 			return f(get());
 		} else {
-			return None{};
+			return none;
 		}
 	}
 
@@ -397,7 +402,7 @@ public:
 	 * Applies a function to the contained value or returns a default.
 	 */
 	template <typename R>
-	R mapOr(std::function<R (T)> f, const R& def) const
+	R mapOr(std::function<R (T&)> f, const R& def) const
 	{
 		if (isSome()) {
 			return f(get());
@@ -410,17 +415,17 @@ public:
 	 * Maps an Maybe<T> to Maybe<R> by applying a function to the contained value.
 	 */
 	template <typename R>
-	Maybe<R> bind(std::function<Maybe<R> (T)> f) const
+	Maybe<R> bind(std::function<Maybe<R> (T&)> f) const
 	{
 		if (isSome()) {
 			return f(get());
 		} else {
-			return None{};
+			return none;
 		}
 	}
 
 private:
-	void set(T some) 
+	void set(T& some) 
 	{
 		pointer = &some;
 	}
@@ -436,8 +441,20 @@ private:
 	}
 
 	// Represent the reference as a nullable pointer.
-	typename std::add_pointer<T>::type pointer;
+	T* pointer;
 };
+
+template <typename T>
+Maybe<T> some(const T& value) 
+{
+	return Maybe<T>(value);
+}
+
+template <typename T>
+Maybe<T> some(T&& value)
+{
+	return Maybe<T>(value);
+}
 
 } // namespace ps
 

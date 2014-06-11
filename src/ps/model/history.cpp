@@ -7,14 +7,24 @@ History::History()
 {
 }
 
-const std::vector<Board>& History::boards() const
+History::~History()
+{
+	clear();
+}
+
+const std::vector<Board*>& History::boards() const
 {
 	return boards_;
 }
 
-Maybe<const Board&> History::focusedBoard() const
+Board* History::focusedBoard()
 {
-	return focus_.map<const Board&>([this] (size_t i) -> const Board& { return boards_[i]; });	
+	return focus_.mapOr<Board*>([this] (size_t i) { return boards_[i]; }, nullptr);
+}
+
+const Board* History::focusedBoard() const
+{
+	return focus_.mapOr<const Board*>([this] (size_t i) { return boards_[i]; }, nullptr);
 }
 
 Maybe<size_t> History::focusedIndex() const
@@ -39,20 +49,25 @@ void History::focusLast()
 	}
 }
 
-const Board& History::boardAt(size_t i) const
+Board* History::boardAt(size_t i)
 {
 	return boards_[i];
 }
 
-void History::setBoardAt(size_t i, const Board& board)
+const Board* History::boardAt(size_t i) const
 {
-	boards_[i] = board;
-	emit boardModified(i);
+	return boards_[i];
 }
 
 void History::push(const Board& board)
 {
-	boards_.push_back(board);
+	boards_.push_back(new Board{board});
+	emit pushed();
+}
+
+void History::push(Board&& board)
+{
+	boards_.push_back(new Board{board});
 	emit pushed();
 }
 
@@ -64,16 +79,16 @@ void History::pop()
 		setFocusedIndex(boards_.size() - 2);
 	}
 
+	emit popping();
 	boards_.pop_back();
-	emit popped();
 }
 
 void History::clear()
 {
 	setFocusedIndex(none);
 	while (size() > 0) {
+		emit popping();
 		boards_.pop_back();
-		emit popped();
 	}
 }
 
@@ -81,8 +96,8 @@ void History::clearAfterFocus()
 {
 	size_t newSize = focus_.mapOr<size_t>([] (size_t i) { return i + 1; }, 0);
 	while (size() > newSize) {
+		emit popping();
 		boards_.pop_back();
-		emit popped();
 	}
 }
 

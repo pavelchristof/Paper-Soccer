@@ -44,9 +44,8 @@ signals:
 
 private:
 	void focusChanged();
-	void boardModified(size_t i);
 	void pushed();
-	void popped();
+	void popping();
 	
 	QLayout* itemsLayout;
 	QScrollArea* scrollArea;

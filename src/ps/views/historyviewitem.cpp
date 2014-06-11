@@ -51,14 +51,6 @@ const BoardView* HistoryViewItem::boardView() const
 	return boardView_;
 }
 
-void HistoryViewItem::setBoardView(BoardView* boardView)
-{
-	layout->removeWidget(boardView_);
-	boardView_ = boardView;
-	layout->addWidget(boardView_);
-	setFocused(isFocused());
-}
-
 void HistoryViewItem::paintEvent(QPaintEvent* e)
 {
 	// QAbstractButton makes this method pure, idk why.

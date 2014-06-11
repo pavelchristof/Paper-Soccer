@@ -19,8 +19,17 @@ class BoardView : public QWidget
 public:
 	explicit BoardView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
 
-	Maybe<const Board&> board() const;
-	void setBoard(Maybe<const Board&> board);
+	/**
+	 * @returns the displayed board.
+	 * @note Can be null.
+	 */
+	const Board* board() const;
+
+	/**
+	 * Sets the displayed board.
+	 * @note Can be null.
+	 */
+	void setBoard(const Board* board);
 
 	qreal ballRadius() const;
 	void setBallRadius(qreal radius);
@@ -88,7 +97,7 @@ private:
 
 	bool snapping_;
 	bool isDraggingBall_;
-	Maybe<Board> board_;
+	const Board* board_;
 	Maybe<QPoint> pointUnderMouse;
 };
 

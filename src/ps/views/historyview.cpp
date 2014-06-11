@@ -68,9 +68,8 @@ void HistoryView::setHistory(History* history)
 		focusChanged();
 
 		connections.push_back(connect(history, &History::focusChanged, this, &HistoryView::focusChanged));
-		connections.push_back(connect(history, &History::boardModified, this, &HistoryView::boardModified));
 		connections.push_back(connect(history, &History::pushed, this, &HistoryView::pushed));
-		connections.push_back(connect(history, &History::popped, this, &HistoryView::popped));
+		connections.push_back(connect(history, &History::popping, this, &HistoryView::popping));
 	}
 }
 
@@ -85,22 +84,17 @@ void HistoryView::focusChanged()
 	}
 }
 
-void HistoryView::boardModified(size_t i)
-{
-	items[i]->boardView()->setBoard(history()->boardAt(i));
-}
-
 void HistoryView::pushed()
 {
 	size_t i = items.size();
-	HistoryViewItem* item = new HistoryViewItem(this);
+	HistoryViewItem* item = new HistoryViewItem;
 	item->boardView()->setBoard(history()->boardAt(i));
 	connect(item, &HistoryViewItem::clicked, [this, i] () { emit itemClicked(i); });
 	itemsLayout->addWidget(item);
 	items.push_back(item);
 }
 
-void HistoryView::popped()
+void HistoryView::popping()
 {
 	HistoryViewItem* item = items.back();
 	itemsLayout->removeWidget(item);

@@ -10,7 +10,7 @@ BoardView::BoardView(QWidget* parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
 	, snapping_(true)
 	, isDraggingBall_(false)
-	, board_(none)
+	, board_(nullptr)
 	, pointUnderMouse(none)
 {
 	resetBallRadius();
@@ -24,12 +24,12 @@ BoardView::BoardView(QWidget* parent, Qt::WindowFlags f)
 	setMouseTracking(true);
 }
 
-ps::Maybe<const Board&> BoardView::board() const
+const Board* BoardView::board() const
 {
 	return board_;
 }
 
-void BoardView::setBoard(ps::Maybe<const ps::Board& > board)
+void BoardView::setBoard(const Board* board)
 {
 	board_ = board;
 	update();
@@ -187,14 +187,16 @@ void BoardView::setSnapping(bool enabled)
 
 bool BoardView::hasHeightForWidth() const
 {
-	return board_.isSome();
+	return board() != nullptr;
 }
 
 int BoardView::heightForWidth(int width) const
 {
-	return board_.mapOr<int>([width] (const Board& b) {
-		return (width * b.height()) / b.width();
-	}, QWidget::heightForWidth(width));
+	if (board() != nullptr) {
+		return width * board()->height() / board()->width();
+	} else {
+		return QWidget::heightForWidth(width);
+	}
 }
 
 void BoardView::paintEvent(QPaintEvent* event)
@@ -207,28 +209,29 @@ void BoardView::paintEvent(QPaintEvent* event)
 	painter.fillRect(painter.viewport(), backgroundColor());
 
 	// If there is no board dont draw anything.
-	if (board_.isNone())
+	if (board() == nullptr)
 		return;
-	const Board& board = board_.get();
 
 	// Transform the painter to match board coordinates.
 	painter.setTransform(boardToWidgetTransform());
 
 	// Draw background lines.
 	const qreal add = 0.5;
+	const int hw = board()->halfWidth();
+	const int hh = board()->halfHeight();
 	painter.setPen(backgroundLinePen());
-	for (int col = -board.halfWidth(); col <= board.halfWidth(); ++col) {
-		painter.drawLine(QPointF{(qreal)col, -(board.halfHeight() + add)},
-						 QPointF{(qreal)col, board.halfHeight() + add});
+	for (int col = -hw; col <= hw; ++col) {
+		painter.drawLine(QPointF{(qreal)col, -(hh + add)},
+						 QPointF{(qreal)col, hh + add});
 	}
-	for (int row = -board.halfHeight(); row <= board.halfHeight(); ++row) {
-		painter.drawLine(QPointF{-(board.halfWidth() + add), (qreal)row},
-						 QPointF{board.halfWidth() + add, (qreal)row});
+	for (int row = -hh; row <= hh; ++row) {
+		painter.drawLine(QPointF{-(hw + add), (qreal)row},
+						 QPointF{hw + add, (qreal)row});
 	}
 
 	// Draw edges.
-	for (Edge e : board.edgesInside()) {
-		switch (board.edgeCategory(e)) {
+	for (Edge e : board()->edgesInside()) {
+		switch (board()->edgeCategory(e)) {
 			case EdgeCategory::Empty:
 				continue;
 
@@ -253,7 +256,7 @@ void BoardView::paintEvent(QPaintEvent* event)
 	QPoint localPos = mapFromGlobal(QCursor::pos());
 
 	if (isDraggingBall() && rect().contains(localPos)) {
-		QPointF start = board.ball();
+		QPointF start = board()->ball();
 		QPointF end;
 
 		if (isSnappingEnabled() && pointUnderMouse.isSome()) {
@@ -266,7 +269,7 @@ void BoardView::paintEvent(QPaintEvent* event)
 		painter.setPen(newEdgePen());
 		painter.drawLine(start, end);
 	} else {
-		ballPosition = board.ball();
+		ballPosition = board()->ball();
 	}
 
 	painter.setBrush(ballBrush());
@@ -276,19 +279,19 @@ void BoardView::paintEvent(QPaintEvent* event)
 
 void BoardView::mouseMoveEvent(QMouseEvent* event)
 {
-	Maybe<QPoint> newPointUnderMouse = board_.bind<QPoint>([=] (const Board& board) -> Maybe<QPoint> {
+	Maybe<QPoint> newPointUnderMouse{none};
+
+	if (board() != nullptr) {
 		QPointF boardPos = widgetToBoardTransform().map(event->localPos());
 		QPoint nearestPoint = boardPos.toPoint();
-
+		
 		QPointF difference = boardPos - QPointF{nearestPoint};
 		qreal lengthSquared = QPointF::dotProduct(difference, difference);
-
-		if (lengthSquared <= pointRadius() * pointRadius() && board.isPointInside(nearestPoint)) {
-			return nearestPoint;
-		} else {
-			return none;
+		
+		if (lengthSquared <= pointRadius() * pointRadius() && board()->isPointInside(nearestPoint)) {
+			newPointUnderMouse = nearestPoint;
 		}
-	});
+	}
 
 	if (pointUnderMouse != newPointUnderMouse) {
 		if (pointUnderMouse.isSome()) {
@@ -318,32 +321,34 @@ void BoardView::mouseReleaseEvent(QMouseEvent* event)
 
 QTransform BoardView::boardToWidgetTransform()
 {
-	return board_.mapOr<QTransform>([this] (const Board& board) {
-		QTransform transform;
-		transform.translate(width() / 2.0, height() / 2.0);
+	if (board() == nullptr)
+		return {};
 
-		QSize boardSize{board.width() + 1, board.height() + 1};
-		QSize scaledBoard = boardSize.scaled(size(), Qt::KeepAspectRatio);
-		qreal scale = (qreal)scaledBoard.width() / (qreal)boardSize.width();
-		transform.scale(scale, -scale);
-
-		return transform;
-	}, QTransform{});
+	QTransform transform;
+	transform.translate(width() / 2.0, height() / 2.0);
+	
+	QSize boardSize{board()->width() + 1, board()->height() + 1};
+	QSize scaledBoard = boardSize.scaled(size(), Qt::KeepAspectRatio);
+	qreal scale = (qreal)scaledBoard.width() / (qreal)boardSize.width();
+	transform.scale(scale, -scale);
+	
+	return transform;
 }
 
 QTransform BoardView::widgetToBoardTransform()
 {
-	return board_.mapOr<QTransform>([this] (const Board& board) {
-		QTransform transform;
+	if (board() == nullptr)
+		return {};
 
-		QSize boardSize{board.width() + 1, board.height() + 1};
-		QSize scaledBoard = boardSize.scaled(size(), Qt::KeepAspectRatio);
-		qreal scale = (qreal)boardSize.width() / (qreal)scaledBoard.width();
-		transform.scale(scale, -scale);
+	QTransform transform;
 
-		transform.translate(-width() / 2.0, -height() / 2.0);
-		return transform;
-	}, QTransform{});
+	QSize boardSize{board()->width() + 1, board()->height() + 1};
+	QSize scaledBoard = boardSize.scaled(size(), Qt::KeepAspectRatio);
+	qreal scale = (qreal)boardSize.width() / (qreal)scaledBoard.width();
+	transform.scale(scale, -scale);
+
+	transform.translate(-width() / 2.0, -height() / 2.0);
+	return transform;
 }
 
 } // namespace ps

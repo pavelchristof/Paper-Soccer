@@ -30,7 +30,6 @@ public:
 
 	BoardView* boardView();
 	const BoardView* boardView() const;
-	void setBoardView(BoardView* boardView);
 
 protected:
 	void paintEvent(QPaintEvent* e) override;

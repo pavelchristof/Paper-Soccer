@@ -19,17 +19,28 @@ public:
 	 */
 	History();
 
+	/**
+	 * Clears the history (calls signals!).
+	 */
+	virtual ~History();
+
 	History(const History&) = default;
 	History(History&&) = default;
 	History& operator =(const History&) = default;
 	History& operator =(History&&) = default;
 
-	const std::vector<Board>& boards() const;
+	/**
+	 * @returns the boards.
+	 */
+	const std::vector<Board*>& boards() const;
 
 	/**
-	 * The focused board.
+	 * The focused board or nullptr if there is no focus.
 	 */
-	Maybe<const Board&> focusedBoard() const;
+	// @{
+	Board* focusedBoard() ;
+	const Board* focusedBoard() const;
+	// @}
 
 	/**
 	 * The focused entry index.
@@ -46,13 +57,25 @@ public:
 	 */
 	void focusLast();
 
-	const Board& boardAt(size_t i) const;
-	void setBoardAt(size_t i, const Board& board);
+	/**
+	 * Returns a pointer to the i-th entry.
+	 * 
+	 * The returned pointer is stable and valid until the board gets popped.
+	 * 
+	 * @param i the index, must be valid.
+	 */
+	// @{
+	Board* boardAt(size_t i);
+	const Board* boardAt(size_t i) const;
+	// @}
 
 	/**
 	 * Adds a new board as the last entry.
 	 */
+	// @{
 	void push(const Board& board);
+	void push(Board&& board);
+	// @}
 
 	/**
 	 * Removes the last history entry, if that board was focused sets the 
@@ -76,14 +99,24 @@ public:
 	size_t size() const;
 
 signals:
+	/**
+	 * Called after the focus is changed.
+	 */
 	void focusChanged();
-	void boardModified(size_t i);
+
+	/**
+	 * Called after a board is pushed.
+	 */
 	void pushed();
-	void popped();
+
+	/**
+	 * Called before a board is popped.
+	 */
+	void popping();
 
 private:
 	Maybe<size_t> focus_;
-	std::vector<Board> boards_;
+	std::vector<Board*> boards_;
 };
 
 } // namespace ps

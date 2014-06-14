@@ -1,5 +1,5 @@
-#ifndef PS_MODEL_BOARD_HPP
-#define PS_MODEL_BOARD_HPP
+#ifndef PS_MODELS_BOARD_HPP
+#define PS_MODELS_BOARD_HPP
 
 #include "../maybe.hpp"
 #include "../shape.hpp"
@@ -162,4 +162,4 @@ private:
 
 } // namespace ps
 
-#endif // PS_MODEL_BOARD_HPP
+#endif // PS_MODELS_BOARD_HPP

@@ -11,6 +11,7 @@ Player operator!(Player p)
 		case Player::Two:
 			return Player::One;
 	}
+	assert(false);
 }
 
 Board::Board(QSize size)

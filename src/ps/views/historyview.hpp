@@ -22,7 +22,7 @@ class HistoryView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit HistoryView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+	explicit HistoryView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	/**
 	 * @returns the displayed history.

@@ -2,7 +2,7 @@
 #define PS_VIEWS_BOARD_VIEW_HPP
 
 #include "../maybe.hpp"
-#include "../model/board.hpp"
+#include "../models/board.hpp"
 
 #include <QtWidgets/QWidget>
 #include <QtGui/QPen>
@@ -17,7 +17,7 @@ class BoardView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit BoardView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+	explicit BoardView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	/**
 	 * @returns the displayed board.

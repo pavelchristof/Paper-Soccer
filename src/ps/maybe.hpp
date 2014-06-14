@@ -8,7 +8,11 @@
 
 namespace ps {
 
-class None {};
+struct None 
+{
+	None() {};
+};
+
 const None none;
 
 /**

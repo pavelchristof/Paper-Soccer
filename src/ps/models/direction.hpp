@@ -1,5 +1,5 @@
-#ifndef PS_MODEL_DIRECTION_HPP
-#define PS_MODEL_DIRECTION_HPP
+#ifndef PS_MODELS_DIRECTION_HPP
+#define PS_MODELS_DIRECTION_HPP
 
 #include <QtCore/QIntegerForSize>
 #include <QtCore/QPoint>
@@ -25,4 +25,4 @@ QPoint dirToPoint(Direction dir);
 
 }
 
-#endif // PS_MODEL_DIRECTION_HPP
+#endif // PS_MODELS_DIRECTION_HPP

@@ -1,9 +1,13 @@
 #include "gameview.hpp"
 #include "boardview.hpp"
 #include "historyview.hpp"
+#include "playerswitch.hpp"
 
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
+#include <QtWidgets/QLabel>
+#include <QtSvg/QSvgWidget>
 
 namespace ps {
 
@@ -11,8 +15,18 @@ GameView::GameView(QWidget* parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
 {
 	QVBoxLayout* verLayout = new QVBoxLayout;
-	verLayout->addWidget(new QPushButton{"Test"});
-	verLayout->addWidget(new QPushButton{"Another test"});
+
+	// Center the switch horizontaly.
+	playerSwitch_ = new PlayerSwitch;
+	QHBoxLayout* switchLayout = new QHBoxLayout;
+	switchLayout->addStretch();
+	switchLayout->addWidget(playerSwitch_);
+	switchLayout->addStretch();
+	QWidget* switchContainer = new QWidget;
+	switchContainer->setLayout(switchLayout);
+
+	verLayout->addWidget(switchContainer);
+	verLayout->addStretch();
 
 	QWidget* leftContainer = new QWidget;
 	QSizePolicy policy = leftContainer->sizePolicy();

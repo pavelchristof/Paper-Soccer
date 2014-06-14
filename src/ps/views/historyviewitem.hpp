@@ -23,7 +23,7 @@ public:
 	/**
 	 * Creates a not focused history item with an empty board view.
 	 */
-	explicit HistoryViewItem(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+	explicit HistoryViewItem(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	bool isFocused() const;
 	void setFocused(bool isFocused);

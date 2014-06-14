@@ -6,6 +6,7 @@
 namespace ps
 {
 
+class PlayerSwitch;
 class HistoryView;
 class BoardView;
 
@@ -14,8 +15,10 @@ class BoardView;
  */
 class GameView : public QWidget
 {
+	Q_OBJECT
+
 public:
-	explicit GameView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+	explicit GameView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	BoardView* boardView();
 	const BoardView* boardView() const;
@@ -23,9 +26,13 @@ public:
 	HistoryView* historyView();
 	const HistoryView* historyView() const;
 
+	PlayerSwitch* playerSwitch();
+	const PlayerSwitch* playerSwitch() const;
+
 private:
 	BoardView* boardView_;
 	HistoryView* historyView_;
+	PlayerSwitch* playerSwitch_;
 };
 
 } // namespace ps

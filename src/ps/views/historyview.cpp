@@ -1,8 +1,8 @@
 #include "historyview.hpp"
 #include "historyviewitem.hpp"
 #include "boardview.hpp"
-#include "../model/board.hpp"
-#include "../model/history.hpp"
+#include "../models/board.hpp"
+#include "../models/history.hpp"
 
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QVBoxLayout>
@@ -13,9 +13,9 @@ namespace ps {
 
 HistoryView::HistoryView(QWidget* parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
-	, history_(nullptr)
 	, itemsLayout(new QVBoxLayout)
 	, scrollArea(new QScrollArea)
+	, history_(nullptr)
 {
 	// Setup the scrollArea.
 	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

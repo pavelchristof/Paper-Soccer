@@ -1,5 +1,5 @@
-#ifndef PS_MODEL_EDGE_HPP
-#define PS_MODEL_EDGE_HPP
+#ifndef PS_MODELS_EDGE_HPP
+#define PS_MODELS_EDGE_HPP
 
 #include "direction.hpp"
 
@@ -59,4 +59,4 @@ private:
 
 } // namespace ps
 
-#endif // PS_MODEL_EDGE_HPP
+#endif // PS_MODELS_EDGE_HPP

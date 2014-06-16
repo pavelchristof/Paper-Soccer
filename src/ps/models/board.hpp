@@ -171,13 +171,11 @@ public:
 	 * 
 	 * The callback gets the board after the move was finished and the move itself.
 	 * The callback can break enumeration early by returning false.
+	 * The function modifies the board during enumeration, but undos all modifications before it exits.
 	 * 
 	 * @returns Whether the enumeration completed without interruption.
-	 * 
-	 * @warning This function is const-correct only in a single threaded environment. It modifies 
-	 * the board internally and then undos all modifications.
 	 */
-	bool enumerateMoves(std::function<bool (const Board&, const QVector<Direction>&)> callback) const;
+	bool enumerateMoves(std::function<bool (Board&, const QVector<Direction>&)> callback);
 
 	/**
 	 * Returns the winner, if there is one.

@@ -22,12 +22,12 @@ signals:
 protected:
 	void run() override;
 	int value(const Board& board);
-	int alphabeta(const Board& board, int depth, int alfa, int beta, bool maximizing);
+	int alphabeta(Board& board, int depth, int alfa, int beta, bool maximizing);
 
 private:
+	Player player;
 	int timestamp;
 	Board startingBoard;
-	Player player;
 };
 
 } // namespace ps

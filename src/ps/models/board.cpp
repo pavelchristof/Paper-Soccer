@@ -192,7 +192,27 @@ void Board::setEdgeCategory(Edge edge, EdgeCategory category)
 
 bool Board::isEdgeInside(Edge edge) const
 {
-	return isPointInside(edge.start()) && isPointInside(edge.end());
+	edge.normalize();
+
+	if (!isPointInside(edge.start()) || !isPointInside(edge.end())) {
+		return false;
+	}
+
+	// The above criterium would be enough if the board was convex.
+	// Because it is not convex around the gates there are four special cases.
+	Edge specialCases[4] = {
+		{{-2, halfHeight() - 1}, NorthEast}, 
+		{{2, halfHeight() - 1}, NorthWest}, 
+		{{-2, -(halfHeight() - 1)}, SouthEast}, 
+		{{2, -(halfHeight() - 1)}, SouthWest}
+	};
+	for (int i = 0; i < 4; ++i) {
+		if (edge == specialCases[i].normalized()) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool Board::isEdgeVisited(Edge edge) const
@@ -351,31 +371,28 @@ void Board::undoFinishMove(QVector<Direction>&& move)
 	setCurrentPlayer(!currentPlayer());
 }
 
-bool Board::enumerateMoves(std::function<bool (const Board&, const QVector<Direction>&)> callback) const
+bool Board::enumerateMoves(std::function<bool (Board&, const QVector<Direction>&)> callback)
 {
-	Board* mutableThis = const_cast<Board*>(this);
-
 	if (winner().isSome()) {
 		return callback(*this, currentMove());
 	} else if (canFinishMove()) {
 		QVector<Direction> move = currentMove();
-		mutableThis->finishMove();
+		finishMove();
 		bool cont = callback(*this, move);
-		mutableThis->undoFinishMove(std::move(move));
+		undoFinishMove(std::move(move));
 		return cont;
 	} else {
 		for (Direction dir : directions) {
 			if (canStepInDirection(dir)) {
-				mutableThis->pushStep(dir);
+				pushStep(dir);
 				bool cont = enumerateMoves(callback);
-				mutableThis->popStep();
+				popStep();
 				if (!cont) {
 					return false;
 				}
 			}
 		}
 	}
-
 	return true;
 }
 

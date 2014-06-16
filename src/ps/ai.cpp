@@ -5,7 +5,8 @@ namespace ps {
 const int infinity = 1000000;
 
 AI::AI(int timestamp, const Board& board)
-	: timestamp(timestamp)
+	: player(board.currentPlayer())
+	, timestamp(timestamp)
 	, startingBoard(board)
 {
 }
@@ -15,8 +16,10 @@ void AI::run()
 	Maybe<QVector<Direction>> bestMove{none};
 	int bestValue = - 2 * infinity;
 
-	startingBoard.enumerateMoves([&] (const Board& child, const QVector<Direction>& move) {
-		int value = alphabeta(child, 4, -infinity, infinity, true);
+	int stepsBefore = startingBoard.currentMove().size();
+	startingBoard.enumerateMoves([&] (Board& child, const QVector<Direction>& move) {
+		int stepsAdded = move.size() - stepsBefore;
+		int value = alphabeta(child, 6 - stepsAdded, -infinity, infinity, true);
 
 		if (value > bestValue) {
 			bestMove = move;
@@ -26,13 +29,13 @@ void AI::run()
 		return !isInterruptionRequested();
 	});
 
-	if (bestMove.isSome()) {
+	if (!isInterruptionRequested() && bestMove.isSome()) {
 		startingBoard.setCurrentMove(bestMove.get());
 		emit resultReady(timestamp, startingBoard);
 	}
 }
 
-int AI::alphabeta(const Board& board, int depth, int alfa, int beta, bool maximizing)
+int AI::alphabeta(Board& board, int depth, int alfa, int beta, bool maximizing)
 {
 	if (isInterruptionRequested())
 		return 0;
@@ -41,34 +44,40 @@ int AI::alphabeta(const Board& board, int depth, int alfa, int beta, bool maximi
 		return value(board);
 	}
 
-	int& alfaOrBeta = maximizing ? alfa : beta;
-	board.enumerateMoves([&] (const Board& child, const QVector<Direction>& moves) {
-		int stepsAdded = moves.size() - board.currentMove().size();
-		alfaOrBeta = qMax(alfaOrBeta, alphabeta(child, depth - stepsAdded, alfa, beta, !maximizing));
-		return beta > alfa;
-	});
-	return alfaOrBeta;
+	int stepsBefore = board.currentMove().size();
+	if (maximizing) {
+		board.enumerateMoves([&] (Board& child, const QVector<Direction>& move) {
+			int stepsAdded = move.size() - stepsBefore;
+			alfa = qMax(alfa, alphabeta(child, depth - stepsAdded, alfa, beta, false));
+			return beta > alfa;
+		});
+		return alfa;
+	} else {
+		board.enumerateMoves([&] (Board& child, const QVector<Direction>& move) {
+			int stepsAdded = move.size() - stepsBefore;
+			beta = qMin(beta, alphabeta(child, depth - stepsAdded, alfa, beta, true));
+			return beta > alfa;
+		});
+		return beta;
+	}
 }
 
 int AI::value(const Board& board)
 {
 	Maybe<Player> winner = board.winner();
 	if (winner.isSome()) {
-		if (winner.get() == startingBoard.currentPlayer()) {
+		if (winner.get() == player) {
 			return infinity;
 		} else {
 			return -infinity;
 		}
 	}
 
-	int enemyGate = board.halfHeight();
 	if (player == Player::One) {
-		enemyGate = -enemyGate;
+		return -board.ball().y();
+	} else {
+		return board.ball().y();
 	}
-
-	int ydist = abs(enemyGate - board.ball().y());
-	int xdist = qMax(0, abs(board.ball().x()) - 1);
-	return -ydist - xdist;
 }
 
 } // namespace ps

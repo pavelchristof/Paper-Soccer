@@ -400,9 +400,9 @@ void GameController::aiFinish(Board boardAfter)
 {
 	Q_ASSERT(state() == AIRunning);
 	setState(AIStopped);
-	view->startHintButton()->setEnabled(true);
-	view->stopHintButton()->setEnabled(false);
-	QApplication::setOverrideCursor({});
+	view->startAiButton()->setEnabled(true);
+	view->stopAiButton()->setEnabled(false);
+	QApplication::restoreOverrideCursor();
 	safeDeleteAi();
 
 	*board() = boardAfter;

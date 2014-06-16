@@ -16,17 +16,18 @@ void AI::run()
 	Maybe<QVector<Direction>> bestMove{none};
 	int bestValue = - 2 * infinity;
 
+	int depth = 10;
 	int stepsBefore = startingBoard.currentMove().size();
 	startingBoard.enumerateMoves([&] (Board& child, const QVector<Direction>& move) {
 		int stepsAdded = move.size() - stepsBefore;
-		int value = alphabeta(child, 6 - stepsAdded, -infinity, infinity, true);
+		int value = alphabeta(child, depth - stepsAdded, -infinity, infinity, false);
 
 		if (value > bestValue) {
 			bestMove = move;
 			bestValue = value;
 		}
 
-		return !isInterruptionRequested();
+		return !isInterruptionRequested() && depth - stepsAdded >= 0;
 	});
 
 	if (!isInterruptionRequested() && bestMove.isSome()) {
@@ -49,14 +50,14 @@ int AI::alphabeta(Board& board, int depth, int alfa, int beta, bool maximizing)
 		board.enumerateMoves([&] (Board& child, const QVector<Direction>& move) {
 			int stepsAdded = move.size() - stepsBefore;
 			alfa = qMax(alfa, alphabeta(child, depth - stepsAdded, alfa, beta, false));
-			return beta > alfa;
+			return beta > alfa && depth - stepsAdded >= 0;
 		});
 		return alfa;
 	} else {
 		board.enumerateMoves([&] (Board& child, const QVector<Direction>& move) {
 			int stepsAdded = move.size() - stepsBefore;
 			beta = qMin(beta, alphabeta(child, depth - stepsAdded, alfa, beta, true));
-			return beta > alfa;
+			return beta > alfa && depth - stepsAdded >= 0;
 		});
 		return beta;
 	}

@@ -325,28 +325,32 @@ bool Board::canPushSomeStep() const
 	return false;
 }
 
-void Board::convertCurrentMoveToOldEdges()
+QVector<Direction> Board::convertCurrentMoveToOldEdges()
 {
 	QPoint p = ball();
-	while (!currentMove_.empty()) {
-		Direction dir = currentMove_.back();
-		currentMove_.pop_back();
-		
+	for (int i = currentMove_.size() - 1; i >= 0; --i) {
+		Direction dir = currentMove_[i];
+
 		Edge edge{p, opposite(dir)};
 		Q_ASSERT(isEdgeInside(edge));
 		Q_ASSERT(edgeCategory(edge) == EdgeCategory::New);
 		setEdgeCategory(edge, EdgeCategory::Old);
-		
+
 		p = edge.end();
 	}
+
+	QVector<Direction> move;
+	move.swap(currentMove_);
+	return move;
 }
 
-void Board::finishMove()
+QVector<Direction> Board::finishMove()
 {
 	Q_ASSERT(canFinishMove());
 	Q_ASSERT(winner().isNone());
-	convertCurrentMoveToOldEdges();
+	QVector<Direction> move = convertCurrentMoveToOldEdges();
 	setCurrentPlayer(!currentPlayer());
+	return move;
 }
 
 void Board::undoConvertCurrentMoveToOldEdges(QVector<Direction>&& move)
@@ -376,8 +380,7 @@ bool Board::enumerateMoves(std::function<bool (Board&, const QVector<Direction>&
 	if (winner().isSome()) {
 		return callback(*this, currentMove());
 	} else if (canFinishMove()) {
-		QVector<Direction> move = currentMove();
-		finishMove();
+		QVector<Direction> move = finishMove();
 		bool cont = callback(*this, move);
 		undoFinishMove(std::move(move));
 		return cont;

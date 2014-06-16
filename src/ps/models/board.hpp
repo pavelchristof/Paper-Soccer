@@ -156,9 +156,10 @@ public:
 
 	/**
 	 * Converts edges from the current move to old edges and clears the current move.
+	 * @returns the old move.
 	 */
-	void convertCurrentMoveToOldEdges();
-	void finishMove();
+	QVector<Direction> convertCurrentMoveToOldEdges();
+	QVector<Direction> finishMove();
 
 private:
 	void undoConvertCurrentMoveToOldEdges(QVector<Direction>&& move);

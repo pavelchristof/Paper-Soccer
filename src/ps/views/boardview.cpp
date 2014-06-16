@@ -2,14 +2,16 @@
 
 #include <QtGui/QPainter>
 #include <QtGui/QtEvents>
-#include <QtCore/QDebug>
+#include <QtCore/QRectF>
 
 namespace ps {
 
 BoardView::BoardView(QWidget* parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
 	, snapping_(true)
-	, isDraggingBall_(false)
+	, snapFilter_([] (QPoint) { return true; })
+	, draggingMode_(NoDrag)
+	, startPoint_()
 	, board_(nullptr)
 	, pointUnderMouse(none)
 {
@@ -163,14 +165,25 @@ void BoardView::resetBallBrush()
 	setBallBrush({Qt::white});
 }
 
-bool BoardView::isDraggingBall() const
+BoardView::DraggingMode BoardView::draggingMode() const
 {
-	return isDraggingBall_;
+	return draggingMode_;
 }
 
-void BoardView::setDraggingBall(bool enabled)
+void BoardView::setDraggingMode(BoardView::DraggingMode mode)
 {
-	isDraggingBall_ = enabled;
+	draggingMode_ = mode;
+	update();
+}
+
+QPoint BoardView::startPoint() const
+{
+	return startPoint_;
+}
+
+void BoardView::setStartPoint(QPoint point)
+{
+	startPoint_ = point;
 	update();
 }
 
@@ -182,6 +195,17 @@ bool BoardView::isSnappingEnabled() const
 void BoardView::setSnapping(bool enabled)
 {
 	snapping_ = enabled;
+	update();
+}
+
+std::function<bool (QPoint)> BoardView::snapFilter() const
+{
+	return snapFilter_;
+}
+
+void BoardView::setSnapFilter(std::function<bool (QPoint)> filter)
+{
+	snapFilter_ = filter;
 	update();
 }
 
@@ -251,30 +275,51 @@ void BoardView::paintEvent(QPaintEvent* event)
 		painter.drawLine(e.start(), e.end());
 	}
 
-	// Draw the ball and possibly the dragged edge.
-	QPointF ballPosition;
-	QPoint localPos = mapFromGlobal(QCursor::pos());
+	// Where to draw the ball.
+	QPointF ballPos = board()->ball();
 
-	if (isDraggingBall() && rect().contains(localPos)) {
-		QPointF start = board()->ball();
+	// Draw the dragged edge.
+	if (draggingMode() != NoDrag) {
+		QPoint localPos = mapFromGlobal(QCursor::pos());
+		QPointF start = draggingMode() == DragBall ? board()->ball() : startPoint();
 		QPointF end;
 
-		if (isSnappingEnabled() && pointUnderMouse.isSome()) {
+		if (isSnappingEnabled() && pointUnderMouse.mapOr<bool>(snapFilter(), false)) {
 			end = pointUnderMouse.get();
 		} else {
 			end = widgetToBoardTransform().map(QPointF(localPos));
 		}
 
-		ballPosition = end;
+		if (draggingMode() == DragBall) {
+			ballPos = end;
+		}
+
 		painter.setPen(newEdgePen());
 		painter.drawLine(start, end);
-	} else {
-		ballPosition = board()->ball();
 	}
 
+	// Draw the ball.
 	painter.setBrush(ballBrush());
 	painter.setPen(Qt::NoPen);
-	painter.drawEllipse(ballPosition, ballRadius(), ballRadius());
+	painter.drawEllipse(ballPos, ballRadius(), ballRadius());
+
+	// Draw a "X player won" text
+	QString text = board()->winner().mapOr<QString>([] (Player winner) {
+		if (winner == Player::One) {
+			return "1st player won";
+		} else {
+			return "2nd player won";
+		}
+	}, {});
+	if (!text.isEmpty()) {
+		// A magic formula for the text size.
+		qreal textScale = board()->width() / 100.0;
+		painter.scale(textScale, -textScale);
+		painter.setPen(Qt::black);
+		QSizeF size = QSizeF{board()->size()} / textScale;
+		QRectF textRect{{-size.width() / 2, -size.height() / 2}, size};
+		painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, text);
+	}
 }
 
 void BoardView::mouseMoveEvent(QMouseEvent* event)
@@ -305,18 +350,18 @@ void BoardView::mouseMoveEvent(QMouseEvent* event)
 		pointUnderMouse = newPointUnderMouse;
 	}
 
-	if (isDraggingBall()) {
+	if (draggingMode() != NoDrag) {
 		update();
 	}
 }
 
 void BoardView::mouseReleaseEvent(QMouseEvent* event)
 {
+	emit clicked(event->button());
 	if (pointUnderMouse.isSome()) {
-		emit pointClicked(pointUnderMouse.get());
-	} else {
-		event->ignore();
+		emit pointClicked(pointUnderMouse.get(), event->button());
 	}
+	event->ignore();
 }
 
 QTransform BoardView::boardToWidgetTransform()

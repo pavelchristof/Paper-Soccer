@@ -3,6 +3,8 @@
 
 #include "direction.hpp"
 
+#include <QtCore/QDataStream>
+
 namespace ps {
 
 /**
@@ -11,6 +13,8 @@ namespace ps {
 class Edge
 {
 public:
+	Edge();
+
 	/**
 	 * Creates an edge starting in point @a p and going in direction @a dir.
 	 */
@@ -53,9 +57,15 @@ public:
 	//@}
 
 private:
+	friend QDataStream& operator <<(QDataStream& stream, Edge edge);
+	friend QDataStream& operator >>(QDataStream& stream, Edge& edge);
+
 	QPoint start_;
 	Direction direction_;
 };
+
+QDataStream& operator <<(QDataStream& stream, Edge edge);
+QDataStream& operator >>(QDataStream& stream, Edge& edge);
 
 } // namespace ps
 

@@ -3,6 +3,7 @@
 namespace ps {
 
 Direction directions[8] = {NorthWest, North, NorthEast, East, SouthEast, South, SouthWest, West};
+QPoint asPoint[8] = {{-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}};
 
 Direction opposite(Direction dir)
 {
@@ -12,50 +13,34 @@ Direction opposite(Direction dir)
 
 QPoint dirToPoint(Direction dir)
 {
-	qint8 x;
-
-	switch (dir) {
-		case NorthWest:
-		case SouthWest:
-		case West:
-			x = -1;
-			break;
-
-		case North:
-		case South:
-			x = 0;
-			break;
-
-		case NorthEast:
-		case East:
-		case SouthEast:
-			x = 1;
-			break;
-
-	}
-
-	qint8 y;
-
-	switch (dir) {
-		case SouthEast:
-		case South:
-		case SouthWest:
-			y = -1;
-			break;
-
-		case East:
-		case West:
-			y = 0;
-			break;
-
-		case NorthWest:
-		case North:
-		case NorthEast:
-			y = 1;
-			break;
-	}
-
-	return {x, y};
+	return asPoint[static_cast<quint8>(dir)];
 }
 
+Maybe<Direction> pointToDir(QPoint point)
+{
+	for (quint8 i = 0; i < 8; ++i) {
+		if (asPoint[i] == point) {
+			return static_cast<Direction>(i);
+		}
+	}
+	return none;
 }
+
+QDataStream& operator<<(QDataStream& stream, Direction dir)
+{
+	return stream << static_cast<quint8>(dir);
+}
+
+QDataStream& operator>>(QDataStream& stream, Direction& dir)
+{
+	quint8 asInt;
+	stream >> asInt;
+	if (asInt > 7) {
+		stream.setStatus(QDataStream::ReadCorruptData);
+		return stream;
+	}
+	dir = static_cast<Direction>(asInt);
+	return stream;
+}
+
+} // namespace ps

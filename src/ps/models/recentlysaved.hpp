@@ -12,6 +12,7 @@ class RecentlySaved : public QStringListModel
 	Q_OBJECT
 
 public:
+	using QStringListModel::QStringListModel;
 
 	/**
 	 * Loads the list using QSettings.

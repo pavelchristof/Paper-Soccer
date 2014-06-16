@@ -6,14 +6,20 @@
 namespace ps
 {
 
+class GameConfigView;
+
 class GameConfigController : public Controller
 {
 	Q_OBJECT
 
 public:
 	void setup(Application* app) override;
-	void activate(Application* app) override;
-	void deactivate(Application* app) override;
+	void activate() override;
+	void deactivate() override;
+
+private:
+	Application* app;
+	GameConfigView* view;
 };
 
 }

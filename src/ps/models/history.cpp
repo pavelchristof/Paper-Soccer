@@ -12,27 +12,27 @@ History::~History()
 	clear();
 }
 
-const std::vector<Board*>& History::boards() const
+const QVector<Board*>& History::boards() const
 {
 	return boards_;
 }
 
 Board* History::focusedBoard()
 {
-	return focus_.mapOr<Board*>([this] (size_t i) { return boards_[i]; }, nullptr);
+	return focus_.mapOr<Board*>([this] (int i) { return boards_[i]; }, nullptr);
 }
 
 const Board* History::focusedBoard() const
 {
-	return focus_.mapOr<const Board*>([this] (size_t i) { return boards_[i]; }, nullptr);
+	return focus_.mapOr<const Board*>([this] (int i) { return boards_[i]; }, nullptr);
 }
 
-Maybe<size_t> History::focusedIndex() const
+Maybe<int> History::focusedIndex() const
 {
 	return focus_;
 }
 
-void History::setFocusedIndex(Maybe<size_t> i)
+void History::setFocusedIndex(Maybe<int> i)
 {
 	if (focus_ != i) {
 		focus_ = i;
@@ -49,12 +49,12 @@ void History::focusLast()
 	}
 }
 
-Board* History::boardAt(size_t i)
+Board* History::boardAt(int i)
 {
 	return boards_[i];
 }
 
-const Board* History::boardAt(size_t i) const
+const Board* History::boardAt(int i) const
 {
 	return boards_[i];
 }
@@ -94,16 +94,48 @@ void History::clear()
 
 void History::clearAfterFocus()
 {
-	size_t newSize = focus_.mapOr<size_t>([] (size_t i) { return i + 1; }, 0);
+	int newSize = focus_.mapOr<int>([] (int i) { return i + 1; }, 0);
 	while (size() > newSize) {
 		emit popping();
 		boards_.pop_back();
 	}
 }
 
-size_t History::size() const
+int History::size() const
 {
 	return boards_.size();
+}
+
+QDataStream& operator <<(QDataStream& stream, const History& history)
+{
+	// Save the focus.
+	stream << history.focus_;
+
+	// Save the boards.
+	stream << history.boards_.size();
+	for (Board* board : history.boards_) {
+		stream << *board;
+	}
+
+	return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, History& history)
+{
+	// Load the focus.
+	stream >> history.focus_;
+
+	// Load the boards.
+	int size;
+	stream >> size;
+	history.boards_.clear();
+	for (int i = 0; i < size; ++i) {
+		Board* board = new Board;
+		stream >> *board;
+		history.boards_.push_back(board);
+	}
+
+	return stream;
 }
 
 } // namespace ps

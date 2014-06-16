@@ -10,29 +10,34 @@ namespace ps {
 
 void GameConfigController::setup(Application* app)
 {
-	GameConfigView* view = app->gameConfigView();
+	this->app = app;
+	this->view = app->gameConfigView();
 
 	connect(view, &GameConfigView::cancelClicked, [app] () {
-		app->setActiveController(new WelcomeController);
+		app->setActiveController(app->welcomeController());
 	});
 
 	connect(view, &GameConfigView::startGameClicked, [app] () {
-		app->history()->clear();
 		app->history()->push(Board(app->gameConfig()->size()));
 		app->history()->setFocusedIndex(0);
 		app->setActiveController(app->gameController());
 	});
 }
 
-void GameConfigController::activate(Application* app)
+void GameConfigController::activate()
 {
-	app->gameConfigView()->setConfig(app->gameConfig());
-	app->setActiveView(app->gameConfigView());
+	view->setConfig(app->gameConfig());
+	app->setActiveView(view);
+	app->newGameAction()->setEnabled(false);
+	app->loadGameAction()->setEnabled(true);
+	app->saveGameAction()->setEnabled(false);
+	app->quitAction()->setEnabled(true);
+	app->history()->clear();
 }
 
-void GameConfigController::deactivate(Application* app)
+void GameConfigController::deactivate()
 {
-	app->gameConfigView()->setConfig(nullptr);
+	view->setConfig(nullptr);
 }
 
 } // namespace ps

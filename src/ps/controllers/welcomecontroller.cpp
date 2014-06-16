@@ -1,6 +1,5 @@
 #include "welcomecontroller.hpp"
 #include "../application.hpp"
-#include "../views/mainwindow.hpp"
 #include "../views/welcomeview.hpp"
 #include "../models/recentlysaved.hpp"
 
@@ -8,7 +7,8 @@ namespace ps {
 
 void WelcomeController::setup(Application* app)
 {
-	WelcomeView* view = app->welcomeView();
+	this->app = app;
+	this->view = app->welcomeView();
 
 	connect(view->newGameButton(), &QPushButton::clicked, app, &Application::newGame);
 	connect(view->loadGameButton(), &QPushButton::clicked, [app] () { app->loadGame(); });
@@ -18,15 +18,19 @@ void WelcomeController::setup(Application* app)
 	});
 }
 
-void WelcomeController::activate(Application* app)
+void WelcomeController::activate()
 {
-	app->welcomeView()->recentlySavedList()->setModel(app->recentlySaved());
-	app->setActiveView(app->welcomeView());
+	view->recentlySavedList()->setModel(app->recentlySaved());
+	app->setActiveView(view);
+	app->newGameAction()->setEnabled(true);
+	app->loadGameAction()->setEnabled(true);
+	app->saveGameAction()->setEnabled(false);
+	app->quitAction()->setEnabled(true);
 }
 
-void WelcomeController::deactivate(Application* app)
+void WelcomeController::deactivate()
 {
-	app->welcomeView()->recentlySavedList()->setModel(nullptr);
+	view->recentlySavedList()->setModel(nullptr);
 }
 
 } // namespace ps

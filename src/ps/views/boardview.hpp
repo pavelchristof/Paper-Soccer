@@ -6,6 +6,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QtGui/QPen>
+#include <functional>
 
 namespace ps {
 
@@ -17,7 +18,7 @@ class BoardView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit BoardView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+	BoardView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	/**
 	 * @returns the displayed board.
@@ -63,17 +64,35 @@ public:
 	void setBallBrush(const QBrush& brush);
 	void resetBallBrush();
 
-	bool isDraggingBall() const;
-	void setDraggingBall(bool enabled);
+	enum DraggingMode {
+		NoDrag,
+		DragEdge /* (QPoint startPoint) */,
+		DragBall
+	};
+
+	DraggingMode draggingMode() const;
+	void setDraggingMode(DraggingMode mode);
+
+	/**
+	 * @see DragEdge
+	 */
+	// @{
+	QPoint startPoint() const;
+	void setStartPoint(QPoint point);
+	// @}
 
 	bool isSnappingEnabled() const;
 	void setSnapping(bool enabled);
+
+	std::function<bool (QPoint)> snapFilter() const;
+	void setSnapFilter(std::function<bool (QPoint)> filter);
 
 	bool hasHeightForWidth() const override;
 	int heightForWidth(int width) const override;
 
 signals:
-	void pointClicked(QPoint point);
+	void clicked(Qt::MouseButton button);
+	void pointClicked(QPoint point, Qt::MouseButton button);
 	void pointMouseEnter(QPoint point);
 	void pointMouseLeave(QPoint point);
 
@@ -96,7 +115,10 @@ private:
 	QBrush ballBrush_;
 
 	bool snapping_;
-	bool isDraggingBall_;
+	std::function<bool (QPoint)> snapFilter_;
+	DraggingMode draggingMode_;
+	QPoint startPoint_;
+	
 	const Board* board_;
 	Maybe<QPoint> pointUnderMouse;
 };

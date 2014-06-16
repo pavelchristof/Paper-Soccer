@@ -6,6 +6,8 @@
 #include <functional>
 #include <type_traits>
 
+#include <QtCore/QDataStream>
+
 namespace ps {
 
 struct None 
@@ -458,6 +460,31 @@ template <typename T>
 Maybe<T> some(T&& value)
 {
 	return Maybe<T>(value);
+}
+
+template <typename T>
+QDataStream& operator <<(QDataStream& stream, const Maybe<T>& maybe)
+{
+	stream << maybe.isSome();
+	if (maybe.isSome()) {
+		stream << maybe.get();
+	}
+	return stream;
+}
+
+template <typename T>
+QDataStream& operator >>(QDataStream& stream, Maybe<T>& maybe)
+{
+	bool isSome;
+	stream >> isSome;
+	if (isSome) {
+		T value;
+		stream >> value;
+		maybe = value;
+	} else {
+		maybe = none;
+	}
+	return stream;
 }
 
 } // namespace ps

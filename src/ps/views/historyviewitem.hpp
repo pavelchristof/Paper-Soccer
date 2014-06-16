@@ -2,7 +2,7 @@
 #define PS_VIEWS_HISTORYVIEWITEM_HPP
 
 #include <QtWidgets/QAbstractButton>
-#include <QtWidgets/QStackedLayout>
+#include <QtWidgets/QLabel>
 
 namespace ps
 {
@@ -23,7 +23,7 @@ public:
 	/**
 	 * Creates a not focused history item with an empty board view.
 	 */
-	explicit HistoryViewItem(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+	HistoryViewItem(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	bool isFocused() const;
 	void setFocused(bool isFocused);
@@ -36,8 +36,8 @@ protected:
 
 private:
 	bool isFocused_;
-	QStackedLayout* layout;
 	BoardView* boardView_;
+	QLabel* label;
 };
 
 } // namespace ps

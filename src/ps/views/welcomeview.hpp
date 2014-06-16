@@ -13,7 +13,7 @@ class WelcomeView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit WelcomeView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+	WelcomeView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	QPushButton* newGameButton();
 	QPushButton* loadGameButton();

@@ -16,16 +16,22 @@ namespace ps
 class PlayerSwitchButton : public QAbstractButton
 {
 	Q_OBJECT
+	Q_PROPERTY(QColor color READ color WRITE setColor)
 
 public:
-	explicit PlayerSwitchButton(QWidget* parent = nullptr);
+	 PlayerSwitchButton(QWidget* parent = nullptr);
 	QSize sizeHint() const override;
+
+	QColor color() const;
+	void setColor(QColor color);
 
 protected:
 	void paintEvent(QPaintEvent* e) override;
 
 private:
 	QPixmap buttonPixmap;
+	QRegion region;
+	QColor color_;
 };
 
 /**
@@ -39,30 +45,33 @@ public:
 	/**
 	 * Creates the switch in the player one position.
 	 */
-	explicit PlayerSwitch(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+	PlayerSwitch(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	Player selected() const;
 	void setSelected(Player player);
-	void switchPlayer();
+	void switchSelected();
+
+	bool animationsEnabled() const;
+	void setAnimationsEnabled(bool enabled);
 
 	QSize sizeHint() const override;
 
 signals:
-	/**
-	 * The selected player was switched to @a player.
-	 */
-	void switched(Player player);
+	void clicked();
 
 protected:
 	void paintEvent(QPaintEvent*) override;
+	void changeEvent(QEvent* event) override;
 
 private:
 	int buttonDestX(Player player) const;
 
+	bool animationsEnabled_;
 	Player selectedPlayer;
 	QPixmap backgroundPixmap;
 	PlayerSwitchButton* button;
-	QPropertyAnimation animation;
+	QPropertyAnimation geometryAnim;
+	QPropertyAnimation colorAnim;
 };
 
 } // namespace ps

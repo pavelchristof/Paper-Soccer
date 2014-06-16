@@ -1,8 +1,10 @@
-#ifndef PS_VIEWS_MAINWINDOW_HPP
-#define PS_VIEWS_MAINWINDOW_HPP
+#ifndef PS_MAINWINDOW_HPP
+#define PS_MAINWINDOW_HPP
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QStackedLayout>
+
+#include "application.hpp"
 
 namespace ps
 {
@@ -12,7 +14,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow();
+	MainWindow(Application* app);
 
 	QStackedLayout* stackedLayout();
 
@@ -22,4 +24,4 @@ private:
 
 } // namespace ps
 
-#endif // PS_VIEWS_MAINWINDOW_HPP
+#endif // PS_MAINWINDOW_HPP

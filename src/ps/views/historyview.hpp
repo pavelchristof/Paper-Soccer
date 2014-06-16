@@ -3,8 +3,10 @@
 
 #include "../maybe.hpp"
 
+#include <QtCore/QVector>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QScrollArea>
+#include <QtWidgets/QVBoxLayout>
 
 namespace ps
 {
@@ -14,6 +16,20 @@ class BoardView;
 class History;
 class HistoryViewItem;
 
+class WidgetWithAResizedSignal : public QWidget
+{
+	Q_OBJECT
+	
+public:
+	using QWidget::QWidget;
+
+signals:
+	void resized();
+
+protected:
+	void resizeEvent(QResizeEvent* event) override;
+};
+
 /**
  * Shows the history.
  */
@@ -22,7 +38,7 @@ class HistoryView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit HistoryView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+	HistoryView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	/**
 	 * @returns the displayed history.
@@ -39,19 +55,24 @@ public:
 	 */
 	void setHistory(History* history);
 
+	/**
+	 * Calls update() on a item.
+	 */
+	void updateItem(int i);
+
 signals:
-	void itemClicked(size_t i);
+	void itemClicked(int i);
 
 private:
 	void focusChanged();
 	void pushed();
 	void popping();
 	
-	QLayout* itemsLayout;
+	QVBoxLayout* itemsLayout;
 	QScrollArea* scrollArea;
 	History* history_;
-	std::vector<HistoryViewItem*> items;
-	std::vector<QMetaObject::Connection> connections;
+	QVector<HistoryViewItem*> items;
+	QVector<QMetaObject::Connection> connections;
 };
 
 } // namespace ps

@@ -2,6 +2,11 @@
 #define PS_VIEWS_GAMEVIEW_HPP
 
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QCommandLinkButton>
+
+class Ui_GameView;
 
 namespace ps
 {
@@ -18,21 +23,21 @@ class GameView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit GameView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+	GameView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	BoardView* boardView();
-	const BoardView* boardView() const;
-
 	HistoryView* historyView();
-	const HistoryView* historyView() const;
-
 	PlayerSwitch* playerSwitch();
-	const PlayerSwitch* playerSwitch() const;
+	QWidget* hintBox();
+	QPushButton* startHintButton();
+	QPushButton* stopHintButton();
+	QWidget* aiBox();
+	QPushButton* startAiButton();
+	QPushButton* stopAiButton();
+	QCommandLinkButton* editButton();
 
 private:
-	BoardView* boardView_;
-	HistoryView* historyView_;
-	PlayerSwitch* playerSwitch_;
+	Ui_GameView* ui;
 };
 
 } // namespace ps

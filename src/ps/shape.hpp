@@ -81,6 +81,14 @@ public:
 	}
 
 	/**
+	 * Reonstructs the box from the given key intervals.
+	 */
+	void setIntervals(const IntervalsTuple& intervals) 
+	{
+		intervals_ = intervals;
+	}
+
+	/**
 	 * Maps a point in the box to an index.
 	 */
 	size_t map(const KeysTuple& keys) const

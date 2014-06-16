@@ -13,8 +13,8 @@ class Controller : public QObject
 
 public:
 	virtual void setup(Application* app) = 0;
-	virtual void activate(Application* app) = 0;
-	virtual void deactivate(Application* app) = 0;
+	virtual void activate() = 0;
+	virtual void deactivate() = 0;
 };
 
 }

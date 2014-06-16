@@ -16,7 +16,7 @@ class GameConfigView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit GameConfigView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+	 GameConfigView(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
 
 	GameConfig* config() const;
 	void setConfig(GameConfig* config);

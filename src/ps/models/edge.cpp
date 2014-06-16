@@ -2,6 +2,10 @@
 
 namespace ps {
 
+Edge::Edge()
+{
+}
+
 Edge::Edge(QPoint p, Direction dir)
 	: start_(p)
 	, direction_(dir)
@@ -64,6 +68,16 @@ bool Edge::operator==(const Edge& edge) const
 bool Edge::operator!=(const Edge& edge) const
 {
 	return !(*this == edge);
+}
+
+QDataStream& operator<<(QDataStream& stream, Edge edge)
+{
+	return stream << edge.start_ << edge.direction_;
+}
+
+QDataStream& operator>>(QDataStream& stream, Edge& edge)
+{
+	return stream >> edge.start_ >> edge.direction_;
 }
 
 } // namespace ps

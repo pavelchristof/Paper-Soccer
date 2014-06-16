@@ -3,8 +3,8 @@
 namespace ps {
 
 GameConfig::GameConfig()
-	: width_(10)
-	, height_(12)
+	: width_(8)
+	, height_(10)
 	, isPlayerHuman_{true, false}
 {
 }
@@ -52,6 +52,16 @@ bool GameConfig::isPlayerHuman(Player player) const
 void GameConfig::setPlayerHuman(Player player, bool human)
 {
 	isPlayerHuman_[static_cast<quint8>(player)] = human;
+}
+
+QDataStream& operator<<(QDataStream& stream, const GameConfig& config)
+{
+	return stream << config.width_ << config.height_ << config.isPlayerHuman_[0] << config.isPlayerHuman_[1];
+}
+
+QDataStream& operator>>(QDataStream& stream, GameConfig& config)
+{
+	return stream >> config.width_ >> config.height_ >> config.isPlayerHuman_[0] >> config.isPlayerHuman_[1];
 }
 
 } // namespace ps

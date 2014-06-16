@@ -19,6 +19,9 @@ void RecentlySaved::add(const QString& path)
 	QStringList list = stringList();
 	list.removeAll(path);
 	list.prepend(path);
+	while (list.size() > 10) {
+		list.pop_back();
+	}
 	setStringList(list);
 }
 

@@ -4,7 +4,9 @@
 #include "../maybe.hpp"
 #include "board.hpp"
 
+#include <QtCore/QVector>
 #include <QtCore/QObject>
+#include <QtCore/QDataStream>
 
 namespace ps
 {
@@ -24,15 +26,15 @@ public:
 	 */
 	virtual ~History();
 
-	History(const History&) = default;
+	History(const History&) = delete;
 	History(History&&) = default;
-	History& operator =(const History&) = default;
+	History& operator =(const History&) = delete;
 	History& operator =(History&&) = default;
 
 	/**
 	 * @returns the boards.
 	 */
-	const std::vector<Board*>& boards() const;
+	const QVector<Board*>& boards() const;
 
 	/**
 	 * The focused board or nullptr if there is no focus.
@@ -45,12 +47,12 @@ public:
 	/**
 	 * The focused entry index.
 	 */
-	Maybe<size_t> focusedIndex() const;
+	Maybe<int> focusedIndex() const;
 
 	/**
 	 * Sets the focused entry index.
 	 */
-	void setFocusedIndex(Maybe<size_t> i);
+	void setFocusedIndex(Maybe<int> i);
 
 	/**
 	 * Focuses the last entry or None if the history is empty.
@@ -65,8 +67,8 @@ public:
 	 * @param i the index, must be valid.
 	 */
 	// @{
-	Board* boardAt(size_t i);
-	const Board* boardAt(size_t i) const;
+	Board* boardAt(int i);
+	const Board* boardAt(int i) const;
 	// @}
 
 	/**
@@ -96,7 +98,7 @@ public:
 	/**
 	 * The number of entries.
 	 */
-	size_t size() const;
+	int size() const;
 
 signals:
 	/**
@@ -115,9 +117,15 @@ signals:
 	void popping();
 
 private:
-	Maybe<size_t> focus_;
-	std::vector<Board*> boards_;
+	Maybe<int> focus_;
+	QVector<Board*> boards_;
+
+	friend QDataStream& operator <<(QDataStream& stream, const History& history);
+	friend QDataStream& operator >>(QDataStream& stream, History& history);
 };
+
+QDataStream& operator <<(QDataStream& stream, const History& history);
+QDataStream& operator >>(QDataStream& stream, History& history);
 
 } // namespace ps
 

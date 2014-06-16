@@ -4,12 +4,19 @@
 #include "../models/board.hpp"
 #include "../models/history.hpp"
 
+#include <QtWidgets/QApplication>
 #include <QtWidgets/QLayout>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QStackedLayout>
+#include <QtWidgets/QScrollBar>
 #include <QtGui/QtEvents>
 
 namespace ps {
+
+void WidgetWithAResizedSignal::resizeEvent(QResizeEvent* event)
+{
+	QWidget::resizeEvent(event);
+	emit resized();
+}
 
 HistoryView::HistoryView(QWidget* parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
@@ -26,13 +33,29 @@ HistoryView::HistoryView(QWidget* parent, Qt::WindowFlags f)
 	scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	scrollArea->setWidgetResizable(true);
 
-	QWidget* container = new QWidget;
+	// One stretch item before the history items and one after them.
+	itemsLayout->addStretch();
+	itemsLayout->addStretch();
+
+	// Create the container widget.
+	WidgetWithAResizedSignal* container = new WidgetWithAResizedSignal;
 	container->setLayout(itemsLayout);
 	scrollArea->setWidget(container);
 
 	// Set the scroll area as the displayed widget.
 	setLayout(new QStackedLayout);
 	layout()->addWidget(scrollArea);
+
+	// Ensure that the focused board is visible.
+	// QScrollArea::ensureWidgetVisible is useable only after a resize event. If you call it in a more sensible place
+	// (like the focusChanged method) it will just scroll to a random widget. Citing some forum post:
+	// "ensureWidgetVisible cannot be called immediately [after adding an item] because the scroll area does not know 
+	// its final size yet"
+	connect(container, &WidgetWithAResizedSignal::resized, [this] () {
+		if (history() && history()->focusedIndex().isSome()) {
+			scrollArea->ensureWidgetVisible(items[history()->focusedIndex().get()]);
+		}
+	});
 }
 
 History* HistoryView::history()
@@ -62,7 +85,7 @@ void HistoryView::setHistory(History* history)
 	history_ = history;
 
 	if (history != nullptr) {
-		for (size_t i = 0; i < history->size(); ++i) {
+		for (int i = 0; i < history->size(); ++i) {
 			pushed();
 		}
 		focusChanged();
@@ -73,24 +96,25 @@ void HistoryView::setHistory(History* history)
 	}
 }
 
+void HistoryView::updateItem(int i)
+{
+	items[i]->update();
+}
+
 void HistoryView::focusChanged()
 {
-	for (size_t i = 0; i < items.size(); ++i) {
-		bool focused = history()->focusedIndex() == some(i);
-		items[i]->setFocused(focused);
-		if (focused) {
-			scrollArea->ensureWidgetVisible(items[i]);
-		}
+	for (int i = 0; i < items.size(); ++i) {
+		items[i]->setFocused(history()->focusedIndex() == some(i));
 	}
 }
 
 void HistoryView::pushed()
 {
-	size_t i = items.size();
+	int i = items.size();
 	HistoryViewItem* item = new HistoryViewItem;
 	item->boardView()->setBoard(history()->boardAt(i));
 	connect(item, &HistoryViewItem::clicked, [this, i] () { emit itemClicked(i); });
-	itemsLayout->addWidget(item);
+	itemsLayout->insertWidget(itemsLayout->count() - 1, item);
 	items.push_back(item);
 }
 

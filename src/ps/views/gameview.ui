@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GameView</class>
+ <widget class="QWidget" name="GameView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>879</width>
+    <height>529</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <item>
+    <widget class="QWidget" name="leftContainer" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item alignment="Qt::AlignHCenter">
+       <widget class="ps::PlayerSwitch" name="playerSwitch" native="true">
+        <property name="toolTip">
+         <string>Shows the current player. Click to end the turn.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QWidget" name="hintBox" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QPushButton" name="startHintButton">
+           <property name="toolTip">
+            <string>Get a hint,</string>
+           </property>
+           <property name="text">
+            <string>Hint</string>
+           </property>
+           <property name="icon">
+            <iconset theme="system-help">
+             <normaloff/>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stopHintButton">
+           <property name="toolTip">
+            <string>Stop calculating the hint.</string>
+           </property>
+           <property name="text">
+            <string>Stop hint</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-playback-stop">
+             <normaloff/>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="aiBox" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QPushButton" name="startAiButton">
+           <property name="toolTip">
+            <string>Resume the AI.</string>
+           </property>
+           <property name="text">
+            <string>Resume AI</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-playback-start">
+             <normaloff/>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stopAiButton">
+           <property name="toolTip">
+            <string>Stop the AI.</string>
+           </property>
+           <property name="text">
+            <string>Stop AI</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-playback-stop">
+             <normaloff/>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="helpLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Top gate belongs to the 1st player.&lt;br/&gt;Bottom gate belongs to the 2nd player.&lt;/p&gt;&lt;p&gt;Left click on the ball and then on a nearby point to move the ball, or right click to return the ball to its place.&lt;/p&gt;&lt;p&gt;Right anywhere on the board to remove the last segment.&lt;/p&gt;&lt;p&gt;Click on the switch above to end your turn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCommandLinkButton" name="editButton">
+        <property name="toolTip">
+         <string>Edit this board.</string>
+        </property>
+        <property name="text">
+         <string>Edit this board</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ps::BoardView" name="boardView" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>4</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>200</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ps::HistoryView" name="historyView" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ps::PlayerSwitch</class>
+   <extends>QWidget</extends>
+   <header>ps/views/playerswitch.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ps::BoardView</class>
+   <extends>QWidget</extends>
+   <header>ps/views/boardview.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ps::HistoryView</class>
+   <extends>QWidget</extends>
+   <header>ps/views/historyview.hpp</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -2,6 +2,7 @@
 #include "boardview.hpp"
 #include "historyview.hpp"
 #include "playerswitch.hpp"
+#include "ui_gameview.h"
 
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QPushButton>
@@ -13,63 +14,59 @@ namespace ps {
 
 GameView::GameView(QWidget* parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
+	, ui(new Ui_GameView)
 {
-	QVBoxLayout* verLayout = new QVBoxLayout;
-
-	// Center the switch horizontaly.
-	playerSwitch_ = new PlayerSwitch;
-	QHBoxLayout* switchLayout = new QHBoxLayout;
-	switchLayout->addStretch();
-	switchLayout->addWidget(playerSwitch_);
-	switchLayout->addStretch();
-	QWidget* switchContainer = new QWidget;
-	switchContainer->setLayout(switchLayout);
-
-	verLayout->addWidget(switchContainer);
-	verLayout->addStretch();
-
-	QWidget* leftContainer = new QWidget;
-	QSizePolicy policy = leftContainer->sizePolicy();
-	policy.setHorizontalStretch(1);
-	leftContainer->setSizePolicy(policy);
-	leftContainer->setLayout(verLayout);
-
-	boardView_ = new BoardView;
-	policy = boardView_->sizePolicy();
-	policy.setHorizontalStretch(4);
-	boardView_->setSizePolicy(policy);
-	boardView_->setMinimumSize(200, 200);
-
-	historyView_ = new HistoryView;
-	policy = historyView_->sizePolicy();
-	policy.setHorizontalStretch(1);
-	historyView_->setSizePolicy(policy);
-
-	QHBoxLayout* horLayout = new QHBoxLayout;
-	horLayout->addWidget(leftContainer);
-	horLayout->addWidget(boardView_);
-	horLayout->addWidget(historyView_);
-	setLayout(horLayout);
+	ui->setupUi(this);
 }
 
 BoardView* GameView::boardView()
 {
-	return boardView_;
-}
-
-const BoardView* GameView::boardView() const
-{
-	return boardView_;
+	return ui->boardView;
 }
 
 HistoryView* GameView::historyView()
 {
-	return historyView_;
+	return ui->historyView;
 }
 
-const HistoryView* GameView::historyView() const
+PlayerSwitch* GameView::playerSwitch()
 {
-	return historyView_;
+	return ui->playerSwitch;
+}
+
+QWidget* GameView::hintBox()
+{
+	return ui->hintBox;
+}
+
+QPushButton* GameView::startHintButton()
+{
+	return ui->startHintButton;
+}
+
+QPushButton* GameView::stopHintButton()
+{
+	return ui->stopHintButton;
+}
+
+QWidget* GameView::aiBox()
+{
+	return ui->aiBox;
+}
+
+QPushButton* GameView::startAiButton()
+{
+	return ui->startAiButton;
+}
+
+QPushButton* GameView::stopAiButton()
+{
+	return ui->stopAiButton;
+}
+
+QCommandLinkButton* GameView::editButton()
+{
+	return ui->editButton;
 }
 
 } // namespace ps

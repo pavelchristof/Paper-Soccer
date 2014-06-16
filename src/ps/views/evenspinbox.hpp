@@ -11,7 +11,7 @@ namespace ps
 class EvenSpinBox : public QSpinBox
 {
 public:
-	explicit EvenSpinBox(QWidget* parent = nullptr);
+	 EvenSpinBox(QWidget* parent = nullptr);
 
 protected:
 	QValidator::State validate(QString& input, int& pos) const override;

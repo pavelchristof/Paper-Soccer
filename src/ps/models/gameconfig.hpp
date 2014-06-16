@@ -3,6 +3,8 @@
 
 #include "board.hpp"
 
+#include <QtCore/QDataStream>
+
 namespace ps
 {
 
@@ -31,11 +33,17 @@ public:
 	void setPlayerHuman(Player player, bool human);
 
 private:
+	friend QDataStream& operator <<(QDataStream& stream, const GameConfig& config);
+	friend QDataStream& operator >>(QDataStream& stream, GameConfig& config);
+
 	int width_;
 	int height_;
 	bool isPlayerHuman_[2];
 };
 
-}
+QDataStream& operator <<(QDataStream& stream, const GameConfig& config);
+QDataStream& operator >>(QDataStream& stream, GameConfig& config);
+
+} // namespace ps
 
 #endif // PS_MODELS_GAMECONFIG_HPP

@@ -10,35 +10,6 @@ The first player to place the ball in the opponent's goal wins the game. The gam
 Code description (in polish)
 ============================
 
-Projekt używa wzorca MVC:
-    - katalog src/models/ zawiera logikę gry
-    - katalog src/views/ zawiera widoki
-    - katalog src/controllers/ zawiera kontrolery
+In addition to implementing different parts of the contest to communicate with other participants and interpreters , we tried to implement the Min-Max algorithm and even win the artificial intelligence of this game in some conditions.
 
-Klasa Application składa to wszystko w całość. Zawiera ona w sobie instancje
-wszystkich modeli, kontrolerów i widoków, poznwala zmnieniać aktywny widok i 
-kontroler. Posiada też akcje takie jak "newGame", "loadGame".
-
-Główne okno (i menu) tworzy klasa MainWindow. Jego centralWidget to kontener
-z QStackedLayout'em trzymającym widoki.
-
-Historia reprezentowana jest jako lista plansz. Takie rozwiązanie pozwala
-wyświetlić miniaturki plansz w widoku historii. Rozmiar plansz jest na tyle mały
-(max 30x30) że nie ma co się martwić zużyciem pamięci.
-
-Kontrolery mogą zostać aktywowane i deaktywowane. Zawsze aktywny jest conajwyżej
-jeden kontroler.
-
-Format zapisu danych jest binarny, używający QDataStream. Modele implementują
-operatory << i >> serializując poprostu swoją wewnętrzną reprezentacje.
-
-AI to dość prosty alpha-beta. Działa całkiem nieźle (wygrywa ze mną, ale to nie
-jest wielkie osiągnięcie), chociaż w walkach AI vs AI czasami widać problemy gdy
-wykonuje głupi ruch, bo przez za małą głębokość przeszukiwania myśli że ruch 
-jest wygrywający.
-AI jest wykonywane w osobnym wątku, zwraca wynik przez sygnał (połączany za
-pomocą queued connection z wątkiem GUI).
-
-W katalogu src/ jest pare klas utility, jak Either, Maybe i Shape (nawiązujące
-do kształtu tablicy, jak w NumPy - przydała się do 3-wymiarowej tablicy w klasie
-Board).
+![Screenshot](https://raw.github.com/kargaranamir/Paper-Soccer/master/schematic.png "Schematic")
